@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '0.1'
+VERSION = '0.2'
 
 with open('README.rst') as readme:
     LONG_DESCRIPTION = ''.join(readme.readlines())
@@ -21,7 +21,7 @@ setup(
     url='https://github.com/cznewt/architect-client/',
     packages=find_packages(),
     install_requires=[
-        'yaml',
+        'pyyaml',
         'requests',
         'Click',
     ],
