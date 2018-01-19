@@ -9,37 +9,45 @@ import yaml
 import click
 from architect_client.libarchitect import ArchitectClient
 
-default_inventory_api_url = os.environ.get('ARCHITECT_INVENTORY_API_URL',
-                                           'http://localhost:8181')
-default_inventory_name = os.environ.get('ARCHITECT_INVENTORY_NAME',
-                                        'default')
+
+def load_yaml_file(path):
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return yaml.safe_load(f)
+    return {}
 
 
 @click.command()
-@click.argument('resource_name')
-def adapter_ansible_inventory(resource_name):
-    client = ArchitectClient(default_inventory_api_url, default_inventory_name)
-    data = client.get_data('ansible-inventory', resource_name)
+@click.argument('--list')
+def adapter_ansible_inventory(list):
+    config = load_yaml_file('/etc/architect/client.yml')
+    inventory_api_url = 'http://{}:{}'.format(config['host'],
+                                              config['port'])
+    inventory_name = config['project']
+    client = ArchitectClient(inventory_api_url, inventory_name)
+    data = client.get_data('ansible-inventory')
     print(yaml.safe_dump(data))
 
 
 @click.command()
 @click.argument('resource_name')
 def adapter_salt_pillar(resource_name):
-    client = ArchitectClient(default_inventory_api_url, default_inventory_name)
-    raw_data = client.get_data('salt-pillar', resource_name)
-    output_data = {}
-    for datum_name, datum in raw_data.items():
-        output_data[datum_name] = datum['parameters']
-    print(yaml.safe_dump(output_data[resource_name]))
+    config = load_yaml_file('/etc/architect/client.yml')
+    inventory_api_url = 'http://{}:{}'.format(config['host'],
+                                              config['port'])
+    inventory_name = config['project']
+    client = ArchitectClient(inventory_api_url, inventory_name)
+    data = client.get_data('salt-pillar', resource_name)
+    print(yaml.safe_dump(data[resource_name]['parameters']))
 
 
 @click.command()
 @click.argument('resource_name')
 def adapter_salt_top(resource_name):
-    client = ArchitectClient(default_inventory_api_url, default_inventory_name)
-    raw_data = client.get_data('salt-top', resource_name)
-    output_data = {}
-    for datum_name, datum in raw_data.items():
-        output_data[datum_name] = datum['applications']
-    print(yaml.safe_dump({'classes': output_data[resource_name]}))
+    config = load_yaml_file('/etc/architect/client.yml')
+    inventory_api_url = 'http://{}:{}'.format(config['host'],
+                                              config['port'])
+    inventory_name = config['project']
+    client = ArchitectClient(inventory_api_url, inventory_name)
+    data = client.get_data('salt-top', resource_name)
+    print(yaml.safe_dump({'classes': data[resource_name]['applications']}))

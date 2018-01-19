@@ -15,6 +15,16 @@ Following steps show how to deploy and configure Architect Client.
 
     pip install architect-client
 
+Create configuration file ``/etc/architect/client.yml`` for client.
+
+.. code-block:: yaml
+
+    project: project-name
+    host: architect-api
+    port: 8181
+    username: salt
+    password: password
+
 
 SaltStack Integration
 ---------------------
