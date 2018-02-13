@@ -25,6 +25,34 @@ def write_json_file(path, content):
 
 
 @click.command()
+@click.argument('cluster_name')
+@click.argument('domain_name')
+def client_inventory_create(cluster_name, domain_name):
+    config = load_yaml_file('/etc/architect/client.yml')
+    inventory_api_url = 'http://{}:{}'.format(config['host'],
+                                              config['port'])
+    inventory_name = config['project']
+    client = ArchitectClient(inventory_api_url, inventory_name)
+    data = client.create_inventory(cluster_name, domain_name)
+    print(yaml.safe_dump(data))
+
+
+@click.command()
+@click.argument('manager_name')
+@click.argument('manager_url')
+@click.argument('manager_user')
+@click.argument('manager_password')
+def client_manager_salt_create(manager_name, manager_url, manager_user, manager_password):
+    config = load_yaml_file('/etc/architect/client.yml')
+    manager_api_url = 'http://{}:{}'.format(config['host'],
+                                            config['port'])
+    client = ArchitectClient(manager_api_url)
+    data = client.create_manager(manager_name, manager_url, manager_user, manager_password)
+    print(yaml.safe_dump(data))
+
+
+
+@click.command()
 @click.option('--list', is_flag=True)
 def adapter_ansible_inventory(list):
     config = load_yaml_file('/etc/architect/client.yml')

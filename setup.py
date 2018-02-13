@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '0.5'
+VERSION = '0.6'
 
 with open('README.rst') as readme:
     LONG_DESCRIPTION = ''.join(readme.readlines())
@@ -36,6 +36,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
+            'architect-manager-salt-create = architect_client.cli:client_manager_salt_create',
+            'architect-inventory-create = architect_client.cli:client_inventory_create',
             'architect-ansible-inventory = architect_client.cli:adapter_ansible_inventory',
             'architect-chef-data = architect_client.cli:adapter_chef_data',
             'architect-puppet-classifier = architect_client.cli:adapter_puppet_classifier',

@@ -31,15 +31,43 @@ class ArchitectClient(object):
                   'headers': headers}
         try:
             resp = requests.get(**params)
-
             if resp.status_code == 401:
                 raise ArchitectException(str(resp.status_code) + ':Authentication denied')
                 return
-
             if resp.status_code == 500:
                 raise ArchitectException('{}: Server error.'.format(resp.status_code))
                 return
+            if resp.status_code == 404:
+                raise ArchitectException(str(resp.status_code) +' :This request returns nothing.')
+                return
+        except ArchitectException as e:
+            print(e)
+            return
+        return resp.json()
 
+    def _req_post_json(self, path, data):
+        '''
+        A thin wrapper to postt http method of architect api
+        print(api._req_post('/keys'))
+        '''
+        import requests
+
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+        # self._ssl_verify = self.ignore_ssl_errors
+        params = {'url': self._construct_url(path),
+                  'headers': headers,
+                  'json': data}
+        try:
+            resp = requests.post(**params)
+            if resp.status_code == 401:
+                raise ArchitectException(str(resp.status_code) + ':Authentication denied')
+                return
+            if resp.status_code == 500:
+                raise ArchitectException('{}: Server error.'.format(resp.status_code))
+                return
             if resp.status_code == 404:
                 raise ArchitectException(str(resp.status_code) +' :This request returns nothing.')
                 return
@@ -57,6 +85,25 @@ class ArchitectClient(object):
 
         relative_path = path.lstrip('/')
         return urlparse.urljoin(self.api_url, relative_path)
+
+    def create_inventory(self, cluster_name, domain_name):
+        path = '/inventory/v1/inventory-create/data.json'
+        data = {
+            'inventory_name': self.inventory,
+            'cluster_name': cluster_name,
+            'domain_name': domain_name
+        }
+        return self._req_post_json(path, data)
+
+    def create_manager(self, name, url, user, password):
+        path = '/manager/v1/manager-create/data.json'
+        data = {
+            'manager_name': name,
+            'manager_url': url,
+            'manager_user': user,
+            'manager_password': password
+        }
+        return self._req_post_json(path, data)
 
     def get_data(self, source, resource=None):
         if resource is None:

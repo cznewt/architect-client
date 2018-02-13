@@ -96,6 +96,22 @@ file that contains JSON data used to setup the client run. We pass
     $ chef-client -j {{ file_name }}.json --environment _default
 
 
+Client Usage
+============
+
+You can use the client to initialise the inventories.
+
+.. code-block:: bash
+
+    $ architect-inventory-create <cluster-name> <cluster-domain>
+
+You can use the client to initialise the SaltStack managers.
+
+.. code-block:: bash
+
+    $ architect-manager-salt-create <manager-name> <manager-url> <manager-username> <manager-password>
+
+
 References
 ==========
 
