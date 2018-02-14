@@ -1,8 +1,25 @@
 
+import os
+import yaml
+import json
+
 try:
     import urllib.parse as urlparse
 except ImportError:
     import urlparse
+
+
+def load_yaml_file(path):
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return yaml.safe_load(f)
+    return {}
+
+
+def write_json_file(path, content):
+    file_handler = open(path, "w")
+    json.dump(content, file_handler)
+    file_handler.close()
 
 
 class ArchitectException(Exception):
@@ -11,9 +28,15 @@ class ArchitectException(Exception):
 
 class ArchitectClient(object):
 
-    def __init__(self, api_url='http://localhost:8181', inventory='default'):
-        self.api_url = api_url
-        self.inventory = inventory
+    def __init__(self, api_url=None, project=None):
+        if api_url is None:
+            config = load_yaml_file('/etc/architect/client.yml')
+            self.api_url = 'http://{}:{}'.format(config['host'],
+                                                 config['port'])
+            self.project = config.get('project', 'default')
+        else:
+            self.api_url = api_url
+            self.project = project
 
     def _req_get(self, path):
         '''
@@ -89,7 +112,7 @@ class ArchitectClient(object):
     def create_inventory(self, cluster_name, domain_name):
         path = '/inventory/v1/inventory-create/data.json'
         data = {
-            'inventory_name': self.inventory,
+            'inventory_name': self.project,
             'cluster_name': cluster_name,
             'domain_name': domain_name
         }
@@ -105,12 +128,20 @@ class ArchitectClient(object):
         }
         return self._req_post_json(path, data)
 
+    def push_salt_minion(self, data):
+        path = "/salt/v1/minion/{}".format(self.project)
+        return self._req_post_json(path, data)
+
+    def push_salt_event(self, data):
+        path = "/salt/v1/event/{}".format(self.project)
+        return self._req_post_json(path, data)
+
     def get_data(self, source, resource=None):
         if resource is None:
-            path = '/inventory/v1/{}/data.json?source={}'.format(self.inventory,
+            path = '/inventory/v1/{}/data.json?source={}'.format(self.project,
                                                                  source)
         else:
-            path = '/inventory/v1/{}/{}/data.json?source={}'.format(self.inventory,
+            path = '/inventory/v1/{}/{}/data.json?source={}'.format(self.project,
                                                                     resource,
                                                                     source)
         return self._req_get(path)

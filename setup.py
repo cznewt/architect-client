@@ -2,13 +2,12 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '0.6'
+VERSION = '0.7'
 
 with open('README.rst') as readme:
     LONG_DESCRIPTION = ''.join(readme.readlines())
 
-DESCRIPTION = """Architect Client is client-side of service modeling,
-management and visualization platform."""
+DESCRIPTION = "architect-client is a client CLI of Architect, the service modeling, management and visualization platform."
 
 setup(
     name='architect-client',
