@@ -46,8 +46,8 @@ def adapter_puppet_classifier(resource_name):
     client = ArchitectClient()
     data = client.get_data('puppet-classifier', resource_name)
     print(yaml.safe_dump({
-        'classes': data.get('resource_name', {}).get('applications', {}),
-        'parameters': data.get('resource_name', {}).get('parameters', {})
+        'classes': data.get(resource_name, {}).get('applications', {}),
+        'parameters': data.get(resource_name, {}).get('parameters', {})
     }))
 
 
@@ -56,7 +56,7 @@ def adapter_puppet_classifier(resource_name):
 def adapter_salt_pillar(resource_name):
     client = ArchitectClient()
     data = client.get_data('salt-pillar', resource_name)
-    print(yaml.safe_dump(data.get('resource_name', {}).get('parameters', {})))
+    print(yaml.safe_dump(data.get(resource_name, {}).get('parameters', {})))
 
 
 @click.command()
@@ -65,9 +65,9 @@ def adapter_chef_data(resource_name, config_file=None):
     client = ArchitectClient()
     data = client.get_data('chef-data', resource_name)
     if config_file is None:
-        print(json.dump(data.get('resource_name', {}).get('parameters', {})))
+        print(json.dump(data.get(resource_name, {}).get('parameters', {})))
     else:
-        write_json_file(data.get('resource_name', {}).get('parameters', {}), config_file)
+        write_json_file(data.get(resource_name, {}).get('parameters', {}), config_file)
 
 
 @click.command()
@@ -75,4 +75,4 @@ def adapter_chef_data(resource_name, config_file=None):
 def adapter_salt_top(resource_name):
     client = ArchitectClient()
     data = client.get_data('salt-top', resource_name)
-    print(yaml.safe_dump({'classes': data.get('resource_name', {}).get('applications', {})}))
+    print(yaml.safe_dump({'classes': data.get(resource_name, {}).get('applications', {})}))
