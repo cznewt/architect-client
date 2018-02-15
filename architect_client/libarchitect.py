@@ -128,12 +128,16 @@ class ArchitectClient(object):
         }
         return self._req_post_json(path, data)
 
-    def push_salt_minion(self, data):
+    def push_node_info(self, data):
         path = "/salt/v1/minion/{}".format(self.project)
         return self._req_post_json(path, data)
 
-    def push_salt_event(self, data):
+    def push_event(self, data):
         path = "/salt/v1/event/{}".format(self.project)
+        return self._req_post_json(path, data)
+
+    def classify_node(self, data):
+        path = "/salt/v1/class/{}".format(self.project)
         return self._req_post_json(path, data)
 
     def get_data(self, source, resource=None):
