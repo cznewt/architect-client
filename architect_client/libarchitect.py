@@ -34,9 +34,11 @@ class ArchitectClient(object):
             self.api_url = 'http://{}:{}'.format(config['host'],
                                                  config['port'])
             self.project = config.get('project', 'default')
+            self.project_mapping = config.get('project_mapping', {})
         else:
             self.api_url = api_url
             self.project = project
+            self.project_mapping = {}
 
     def _req_get(self, path):
         '''
@@ -101,10 +103,10 @@ class ArchitectClient(object):
 
     def _construct_url(self, path):
         '''
-        Construct the url to architect-api for the given path
         Args:
             path: the path to the architect-api resource
         '''
+        Construct the url to architect-api for the given path
 
         relative_path = path.lstrip('/')
         return urlparse.urljoin(self.api_url, relative_path)
@@ -145,7 +147,13 @@ class ArchitectClient(object):
             path = '/inventory/v1/{}/data.json?source={}'.format(self.project,
                                                                  source)
         else:
-            path = '/inventory/v1/{}/{}/data.json?source={}'.format(self.project,
+            domain = '.'.join(resource.split('.')[1:])
+            if domain in self.project_mapping:
+                project = self.project_mapping[domain]
+            else:
+                project = self.project
+
+            path = '/inventory/v1/{}/{}/data.json?source={}'.format(project,
                                                                     resource,
                                                                     source)
         return self._req_get(path)

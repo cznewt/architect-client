@@ -26,6 +26,19 @@ Create configuration file ``/etc/architect/client.yml`` for client.
     password: password
 
 
+Multiple Inventory Support
+--------------------------
+
+If the ``project_mapping`` is specified, multiple inventories can be queried
+from the single orchestrator according to the node name.
+
+.. code-block:: yaml
+
+    project_mapping:
+      node.domain: project01-name
+      node2.domain: inventory02-name
+
+
 SaltStack Integration
 ---------------------
 
@@ -43,7 +56,7 @@ to your Salt master at ``/etc/salt/master.d/_master.conf`` file.
 .. code-block:: yaml
 
     master_tops:
-       ext_nodes: architect-salt-top
+      ext_nodes: architect-salt-top
 
 
 You can test the SaltStack Pillar by calling command:
