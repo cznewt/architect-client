@@ -106,7 +106,6 @@ class ArchitectClient(object):
         Args:
             path: the path to the architect-api resource
         '''
-        Construct the url to architect-api for the given path
 
         relative_path = path.lstrip('/')
         return urlparse.urljoin(self.api_url, relative_path)
