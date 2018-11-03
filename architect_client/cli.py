@@ -65,7 +65,7 @@ def adapter_chef_data(resource_name, config_file=None):
     client = ArchitectClient()
     data = client.get_data('chef-data', resource_name)
     if config_file is None:
-        print(json.dump(data.get(resource_name, {}).get('parameters', {})))
+        print(json.dumps(data.get(resource_name, {}).get('parameters', {})))
     else:
         write_json_file(data.get(resource_name, {}).get('parameters', {}), config_file)
 
@@ -74,5 +74,11 @@ def adapter_chef_data(resource_name, config_file=None):
 @click.argument('resource_name')
 def adapter_salt_top(resource_name):
     client = ArchitectClient()
-    data = client.get_data('salt-top', resource_name)
-    print(yaml.safe_dump({'classes': data.get(resource_name, {}).get('applications', {})}))
+    response = client.get_data('salt-top', resource_name)
+    data = response.get(resource_name, {}).get('applications', [])
+    if client.salt_top_prepend_host:
+        new_data = []
+        for datum in data:
+            new_data.append(resource_name + '.' + datum)
+        data = new_data
+    print(yaml.safe_dump({'classes': data}))

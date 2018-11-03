@@ -28,17 +28,19 @@ class ArchitectException(Exception):
 
 class ArchitectClient(object):
 
-    def __init__(self, api_url=None, project=None):
+    def __init__(self, api_url=None, inventory=None):
         if api_url is None:
             config = load_yaml_file('/etc/architect/client.yml')
             self.api_url = 'http://{}:{}'.format(config['host'],
                                                  config['port'])
-            self.project = config.get('project', 'default')
-            self.project_mapping = config.get('project_mapping', {})
+            self.inventory = config.get('inventory', 'default')
+            self.salt_top_prepend_host = config.get('salt_top_prepend_host', False)
+            self.inventory_mappings = config.get('inventory_mappings', {})
         else:
             self.api_url = api_url
-            self.project = project
-            self.project_mapping = {}
+            self.inventory = inventory
+            self.inventory_mappings = {}
+            self.salt_top_prepend_host = False
 
     def _req_get(self, path):
         '''
@@ -63,7 +65,7 @@ class ArchitectClient(object):
                 raise ArchitectException('{}: Server error.'.format(resp.status_code))
                 return
             if resp.status_code == 404:
-                raise ArchitectException(str(resp.status_code) +' :This request returns nothing.')
+                raise ArchitectException(str(resp.status_code) + ' :This request returns nothing.')
                 return
         except ArchitectException as e:
             print(e)
@@ -94,7 +96,7 @@ class ArchitectClient(object):
                 raise ArchitectException('{}: Server error.'.format(resp.status_code))
                 return
             if resp.status_code == 404:
-                raise ArchitectException(str(resp.status_code) +' :This request returns nothing.')
+                raise ArchitectException(str(resp.status_code) + ' :This request returns nothing.')
                 return
         except ArchitectException as e:
             print(e)
@@ -103,6 +105,8 @@ class ArchitectClient(object):
 
     def _construct_url(self, path):
         '''
+        Construct the url to architect-api for the given path
+
         Args:
             path: the path to the architect-api resource
         '''
@@ -113,7 +117,7 @@ class ArchitectClient(object):
     def create_inventory(self, cluster_name, domain_name):
         path = '/inventory/v1/inventory-create/data.json'
         data = {
-            'inventory_name': self.project,
+            'inventory_name': self.inventory,
             'cluster_name': cluster_name,
             'domain_name': domain_name
         }
@@ -130,29 +134,29 @@ class ArchitectClient(object):
         return self._req_post_json(path, data)
 
     def push_node_info(self, data):
-        path = "/salt/v1/minion/{}".format(self.project)
+        path = "/salt/v1/minion/{}".format(self.inventory)
         return self._req_post_json(path, data)
 
     def push_event(self, data):
-        path = "/salt/v1/event/{}".format(self.project)
+        path = "/salt/v1/event/{}".format(self.inventory)
         return self._req_post_json(path, data)
 
     def classify_node(self, data):
-        path = "/salt/v1/class/{}".format(self.project)
+        path = "/salt/v1/class/{}".format(self.inventory)
         return self._req_post_json(path, data)
 
     def get_data(self, source, resource=None):
         if resource is None:
-            path = '/inventory/v1/{}/data.json?source={}'.format(self.project,
+            path = '/inventory/v1/{}/data.json?source={}'.format(self.inventory,
                                                                  source)
         else:
-            domain = '.'.join(resource.split('.')[1:])
-            if domain in self.project_mapping:
-                project = self.project_mapping[domain]
+            domain = '.'.join(resource.split('.')[-2:])
+            if domain in self.inventory_mappings:
+                inventory = self.inventory_mappings[domain]
             else:
-                project = self.project
+                inventory = self.inventory
 
-            path = '/inventory/v1/{}/{}/data.json?source={}'.format(project,
+            path = '/inventory/v1/{}/{}/data.json?source={}'.format(inventory,
                                                                     resource,
                                                                     source)
         return self._req_get(path)

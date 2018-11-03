@@ -19,7 +19,7 @@ Create configuration file ``/etc/architect/client.yml`` for client.
 
 .. code-block:: yaml
 
-    project: project-name
+    inventory: project-name
     host: architect-api
     port: 8181
     username: salt
@@ -29,12 +29,12 @@ Create configuration file ``/etc/architect/client.yml`` for client.
 Multiple Inventory Support
 --------------------------
 
-If the ``project_mapping`` is specified, multiple inventories can be queried
+If the ``inventory_mappings`` is specified, multiple inventories can be queried
 from the single orchestrator according to the node name.
 
 .. code-block:: yaml
 
-    project_mapping:
+    inventory_mappings:
       node.domain: project01-name
       node2.domain: inventory02-name
 
