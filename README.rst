@@ -17,17 +17,25 @@ Following steps show how to deploy and configure Architect Client.
 
 Create configuration file ``/etc/architect/client.yml`` for client.
 
+
+For single inventory use:
+
 .. code-block:: yaml
 
     inventory: project-name
     host: architect-api
     port: 8181
-    username: salt
-    password: password
+    token: architect-token
 
 
 Multiple Inventory Support
 --------------------------
+
+.. code-block:: yaml
+
+    host: architect-api
+    port: 8181
+    token: architect-token
 
 If the ``inventory_mappings`` is specified, multiple inventories can be queried
 from the single orchestrator according to the node name.
